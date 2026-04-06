@@ -44,3 +44,23 @@
     - name: 8. Menampilkan Hasil Validasi di Terminal
       debug:
         msg: "{{ hasil_ping.stdout_lines }}"
+
+    - name: 9. Konfigurasi SNMP (Monitoring)
+      community.routeros.command:
+        commands:
+          - /snmp set enabled=yes contact="Admin NetDevOps" location="Lab Data Center"
+
+    - name: 10. Konfigurasi Syslog (Remote Logging)
+      community.routeros.command:
+        commands:
+          - /system logging action set [find name="remote"] target=remote remote=192.168.10.10 remote-port=5140
+          - /system logging add action=remote topics=info
+          - /system logging add action=remote topics=error
+          - /system logging add action=remote topics=warning
+      ignore_errors: true
+
+    - name: 11. Mengambil File Backup ke Laptop
+      ansible.builtin.fetch:
+        src: manual_backup.rsc # Pastikan sudah /export di router sebelumnya
+        dest: "./backups/{{ inventory_hostname }}.rsc"
+        flat: yes  
